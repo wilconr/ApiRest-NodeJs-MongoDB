@@ -58,7 +58,7 @@ let createProduct = (req, res) => {
 
     let body = req.body;
 
-    console.log('POST /api/product');
+    console.log('POST /product');
     console.log(body);
 
     let product = new Product({

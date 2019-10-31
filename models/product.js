@@ -1,3 +1,5 @@
+'use strict' // Usa el modo stricto en javaScript
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
