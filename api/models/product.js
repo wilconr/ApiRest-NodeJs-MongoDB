@@ -5,8 +5,11 @@ const Schema = mongoose.Schema;
 
 const productSchema = new Schema({
 
-    name: String,
-    picture: String,
+    name: {
+        type: String,
+        unique: true
+    },
+    image: String,
     price: {
         type: Number,
         default: 0

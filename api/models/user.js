@@ -12,11 +12,11 @@ let rolesValidos = {
 
 const userSchema = new Schema({
 
-    avatar: {
+    image: {
         type: String,
         required: false
     },
-    displayName: {
+    name: {
         type: String,
         required: [true, 'El campo nombre es requerido']
     },

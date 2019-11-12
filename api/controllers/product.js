@@ -1,5 +1,6 @@
 'use strict' // Usa el modo stricto en javaScript
 
+const fs = require('fs-extra'); // Importa el paquete FileSystem-Extra
 const Product = require('../models/product'); // Importar el modelo producto
 
 let getProducts = (req, res) => {
@@ -54,37 +55,75 @@ let getProduct = (req, res) => {
 
 }
 
-let createProduct = (req, res) => {
+let createProduct = async(req, res) => {
 
-    let body = req.body;
+    // console.log(req.body);
+    // console.log(req.file);
 
-    console.log('POST /product');
-    console.log(body);
+    let errors = [];
+    let file = req.file;
+
+    // Verificacion si no se sube un archivo
+    if (!file) {
+        errors.push({ texto: 'No se ha seleccionado un archivo' });
+    }
+
+    if (errors.length > 0) {
+        let products = await Product.find();
+        return res.status(400).json({ errors, products });
+    }
+
+    let fileName = req.file.originalname;
+    let fileRoute = req.file.path;
+
+
+    let splitName = fileName.split('.'); // Descomposicion del nombre del archivo para tomar la extension
+    let extension = splitName[splitName.length - 1]; // expension de la imagen
+
+    let extensionesValidas = ['png', 'jpg', 'gif', 'jpeg']; // Extensiones validas
+
+    // Verificacion si es un archivo de imagen valido
+    if (extensionesValidas.indexOf(extension) < 0) {
+        fs.unlink(fileRoute); // Elimina el archivo de la carpeta uploads
+        errors.push({ texto: 'las extenciones permitidas son: ' + extensionesValidas.join(', ') });
+    }
+
+    if (errors.length > 0) {
+        let products = await Product.find();
+        return res.status(400).json({ errors, products });
+    }
+
+    const { name, price, category, description, type } = req.body;
 
     let product = new Product({
 
-        name: body.name,
-        picture: body.picture,
-        price: body.price,
-        category: body.category,
-        description: body.description
+        name,
+        image: fileRoute,
+        price,
+        category,
+        description
 
-    })
+    });
 
-    product.save((err, productStored) => {
+
+    // console.log(product);
+
+    await product.save((err, productSaved) => {
 
         if (err) {
             return res.status(500).json({
-                message: `Error al guardar en la base de datos ${err}`
+                ok: false,
+                err
             });
         }
 
-        res.status(201).json({
-            message: 'Producto guardado en la base de datos',
-            product: productStored
+        res.json({
+            ok: true,
+            product: productSaved
         });
 
     });
+
 
 }
 
